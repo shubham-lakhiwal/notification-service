@@ -1,0 +1,23 @@
+<html>
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+    </head>
+    <body>
+        <textarea height="300" id="postData" style="height:250px;width:300px">
+
+        </textarea>
+        <button id="submitData">submit</button>
+        <script>
+            $('#submitData').click(e => {
+                const data = JSON.parse($('#postData').val().replace(/\n/g, ''));
+                $.ajax({
+                    type: "POST",
+                    url: '/notification',
+                    data: data,
+                    success: () => {},
+                    dataType: 'json'
+                });
+            })
+        </script>
+    </body>
+</html>

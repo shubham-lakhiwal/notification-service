@@ -1,0 +1,81 @@
+<html>
+<head>
+    <title>Socket and Redis in Node.js</title>
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+</head>
+<body>
+    <div style="text-align: center;">
+    <div id="midForm">
+        <input type="text" autocomplete="off" name="midText" /> 
+        <input type="button" id="setMid" value="Set MID" />
+    </div>
+    <div id="viewNotifications" style="display:none;">
+        <h1 id="mid"></h1>
+        <div id="totalNotifications"></div>
+        <button id="showNotifications">Show Notifications</button>
+        <div id="content"></div>
+    </div>
+</div>
+<br />
+<script>    
+    $(document).ready(function() {
+        var mid = '';
+        $('#setMid').click(function(){
+            if($('input[name=midText]').val() != ""){
+                mid = $('input[name=midText]').val();
+                socket.emit('connectMid',{mid});
+            }
+            $('#midForm').slideUp("slow",function(){
+                $('#viewNotifications').slideDown("slow");
+            });
+        });
+        $('#showNotifications').click(function(){
+            $.ajax({
+                type: "GET",
+                url: '/notifications',
+                data: {mid},
+                success: handleRep,
+                dataType: 'json'
+            });
+        });
+
+        const handleRep = (d) => {
+            console.log(d.res[1]);
+
+            var obj = d.res[1]; 
+            var ul = $("<ul>");
+
+            for (var i = 0, l = obj.length; i < l; ++i) {
+                ul.append("<li>" + obj[i].message + "</li>");
+            }
+            $("#content").html(ul);
+        }
+
+        var socket = new io.connect('http://localhost:3000');
+        var content = $('#content');
+        console.log(socket)
+
+        socket.on('connect', function() {
+            console.log("Connected");
+        });
+
+        socket.on('message', function(message){
+            $('#mid').html("Merchant: " + mid);
+            $('#totalNotifications').html('Total unread notifications = ' + message.count);
+        }) ;
+
+        socket.on('disconnect', function() {
+            console.log('disconnected');
+            content.html("<b>Disconnected!</b>");
+        });
+
+        $("input[name=sendBtn]").click(function(){
+            var msg = {user:username,room:roomname,msg:$("input[name=chatTxt]").val()}
+            socket.emit('sendMessage',msg);
+            $("input[name=chatTxt]").val("");
+        });
+    });
+</script>
+</body>
+</html>
