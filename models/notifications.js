@@ -1,7 +1,9 @@
 // Notifications schema
 // const sendCountNotification = require('../utils/utils');
+const publisher = require('../handlers/redisHandler').getConnection('publisher');
 
 module.exports = (sequelize, DataTypes) => {
+    let dispatchNotification;
     let Notifications = sequelize.define('notifications',{
         id: {
             type: DataTypes.INTEGER,
@@ -42,15 +44,26 @@ module.exports = (sequelize, DataTypes) => {
             afterCreate: (notification, option) => {
                 console.log('New data inserted');
                 const newData = notification.dataValues;
-                // sendCountNotification(newData['mid']);
+                dispatchNotification(newData['mid']);
             },
             afterBulkUpdate: (notifications, option) => {
                 console.log('New bulk updated', this);
-                const _mid = notifications['where']['mid']
-                // sendCountNotification(_mid);
+                const _mid = notifications['where']['mid'];
+                dispatchNotification(_mid);
             },
         }
     });
+
+    dispatchNotification = (mid) => {
+        Notifications.findAll({
+            where: {
+                mid: mid,
+                unread: true
+            }
+        }).then(__d => {
+            publisher.publish(mid, JSON.stringify({ count: __d.length }));
+        })
+    }
 
     return Notifications;
 }

@@ -11,7 +11,7 @@ const sendCountNotification = mid => {
             unread: true
         }
     }).then(_d => {
-        pub.publish(newData['mid'], JSON.stringify({ count: _d.length }));
+        pub.publish(mid, JSON.stringify({ count: _d.length }));
     })
 }
 

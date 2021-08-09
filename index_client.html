@@ -58,6 +58,7 @@
 
         socket.on('connect', function() {
             console.log("Connected");
+            content.html("<b>Connected!</b>");
         });
 
         socket.on('message', function(message){
@@ -68,6 +69,7 @@
         socket.on('disconnect', function() {
             console.log('disconnected');
             content.html("<b>Disconnected!</b>");
+            setTimeout(socket.connect, 5000);
         });
 
         $("input[name=sendBtn]").click(function(){

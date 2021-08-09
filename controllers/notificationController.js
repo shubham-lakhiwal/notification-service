@@ -20,16 +20,7 @@ const notificationController = (request, response) => {
             },
             returning: true
         }).then((res) => {
-            notifications.findAll({
-                where: {
-                    mid: mid,
-                    unread: true
-                }
-            }).then(__d => {
-                pub.publish(mid, JSON.stringify({ count: __d.length }));
-                return response.json({ res });
-            })
-            // sendCountNotification(mid);
+            return response.json({ res });
         });
         
         return;
@@ -47,17 +38,7 @@ const notificationController = (request, response) => {
         created_at: '2021-08-05'
     }).then(r => {
         console.log(r.dataValues.mid);
-        notifications.findAll({
-            where: {
-                mid: r.dataValues.mid,
-                unread: true
-            }
-        }).then(__d => {
-            const redis = require('redis');
-            var pub = redis.createClient("redis://localhost:6379");
-            pub.publish(r.dataValues.mid, JSON.stringify({ count: __d.length }));
-            return response.json({ info: 'Saved the message' });
-        })
+        return response.json({ info: 'Saved the message' });
     });
 }
 
